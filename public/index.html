@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1020" />
+    <title>Agent Delivery Control Room</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="/">
+          <span class="brand-mark">✦</span>
+          <span>
+            <span class="eyebrow">DELIVERY CONTROL ROOM</span>
+            <strong>Agent pipeline</strong>
+          </span>
+        </a>
+        <div class="connection-status">
+          <span id="connectionDot" class="status-dot"></span>
+          <span id="connectionText">Đang kết nối</span>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero-grid">
+          <div class="panel hero-panel">
+            <div class="eyebrow">ORCHESTRATION</div>
+            <h1>Biến ý tưởng thành một bản release có thể kiểm chứng.</h1>
+            <p class="hero-copy">
+              Gửi yêu cầu cho đội agent. Theo dõi từng vai trò, log đang chạy,
+              artifact và các câu hỏi còn mở trong cùng một màn hình.
+            </p>
+            <form id="runForm" class="run-form">
+              <label for="requestInput">Yêu cầu sản phẩm</label>
+              <textarea
+                id="requestInput"
+                rows="4"
+                placeholder="Ví dụ: Xây dựng hệ thống tìm jobs IT cho thị trường Việt Nam..."
+                required
+              ></textarea>
+              <div class="form-footer">
+                <span id="submitError" class="form-error" role="alert"></span>
+                <button class="primary-button" type="submit">
+                  Bắt đầu pipeline <span aria-hidden="true">↗</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="panel overview-panel">
+            <div class="panel-heading">
+              <div>
+                <div class="eyebrow">CURRENT RUN</div>
+                <h2 id="runTitle">Chưa có lượt chạy</h2>
+              </div>
+              <span id="runStatus" class="badge neutral">IDLE</span>
+            </div>
+            <div class="metric-grid">
+              <div class="metric-card">
+                <span class="metric-label">Tiến độ</span>
+                <strong id="progressValue">0 / 6</strong>
+                <div class="progress-track"><span id="progressBar"></span></div>
+              </div>
+              <div class="metric-card">
+                <span class="metric-label">Stage hiện tại</span>
+                <strong id="activeStage">—</strong>
+                <span id="activeMode" class="metric-note">Đang chờ run</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-label">Thời lượng</span>
+                <strong id="elapsedValue">00:00</strong>
+                <span id="startedValue" class="metric-note">Chưa bắt đầu</span>
+              </div>
+              <div class="metric-card accent-card">
+                <span class="metric-label">Kết quả</span>
+                <strong id="resultValue">Chưa có</strong>
+                <span id="resultNote" class="metric-note">Sẵn sàng nhận yêu cầu</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel pipeline-panel">
+          <div class="panel-heading pipeline-heading">
+            <div>
+              <div class="eyebrow">SEQUENTIAL WORKFLOW</div>
+              <h2>Đội agent</h2>
+            </div>
+            <div class="legend">
+              <span><i class="legend-dot running"></i>Đang chạy</span>
+              <span><i class="legend-dot approved"></i>Đã duyệt</span>
+              <span><i class="legend-dot pending"></i>Chờ</span>
+            </div>
+          </div>
+          <div id="stageRail" class="stage-rail"></div>
+        </section>
+
+        <section class="panel git-panel">
+          <div class="panel-heading compact-heading">
+            <div>
+              <div class="eyebrow">LOCAL GIT DELIVERY</div>
+              <h2>Branch & release</h2>
+            </div>
+            <span id="gitAction" class="badge neutral">Chưa khởi tạo</span>
+          </div>
+          <div class="git-summary">
+            <div><span>Current</span><strong id="gitCurrentBranch">—</strong></div>
+            <div><span>Task</span><strong id="gitTaskBranch">—</strong></div>
+            <div><span>Release</span><strong id="gitReleaseBranch">—</strong></div>
+          </div>
+          <pre id="gitEvents" class="log-view git-events">Chưa có Git event.</pre>
+        </section>
+
+        <section class="panel tasks-panel">
+          <div class="panel-heading compact-heading">
+            <div>
+              <div class="eyebrow">PARALLEL TASK BOARD</div>
+              <h2>Task / agent / branch</h2>
+            </div>
+            <span id="taskCount" class="badge neutral">0 task</span>
+          </div>
+          <div id="taskBoard" class="task-board">
+            <div class="empty-state">Chưa có task được TECH_LEAD phân rã.</div>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <aside class="panel history-panel">
+            <div class="panel-heading compact-heading">
+              <div>
+                <div class="eyebrow">RUN HISTORY</div>
+                <h2>Các lượt chạy</h2>
+              </div>
+              <button id="refreshButton" class="icon-button" title="Làm mới">↻</button>
+            </div>
+            <div id="runHistory" class="run-history">
+              <div class="empty-state">Chưa có run nào.</div>
+            </div>
+          </aside>
+
+          <section class="panel detail-panel">
+            <div class="panel-heading detail-heading">
+              <div>
+                <div class="eyebrow">STAGE INSPECTOR</div>
+                <h2 id="detailTitle">Chọn một agent</h2>
+              </div>
+              <span id="detailStatus" class="badge neutral">—</span>
+            </div>
+            <p id="detailSummary" class="detail-summary">
+              Khi pipeline chạy, chọn từng agent để xem deliverable và log.
+            </p>
+            <div class="detail-meta" id="detailMeta"></div>
+
+            <div class="detail-columns">
+              <div>
+                <div class="subheading">Artifact</div>
+                <pre id="detailArtifact" class="artifact-view">Chưa có artifact.</pre>
+              </div>
+              <div>
+                <div class="subheading">Log trực tiếp</div>
+                <pre id="stageLogs" class="log-view">Chưa có log.</pre>
+              </div>
+            </div>
+
+            <div class="insight-grid">
+              <div>
+                <div class="subheading">Open questions</div>
+                <ul id="openQuestions" class="insight-list"><li>—</li></ul>
+              </div>
+              <div>
+                <div class="subheading">Files / tests</div>
+                <ul id="filesAndTests" class="insight-list"><li>—</li></ul>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer>
+        <span>Local orchestration</span>
+        <span>PM → BA → Tech Lead → Backend → Frontend → Tester</span>
+      </footer>
+    </div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+.delivery-git/
+.agent-worktrees/
+artifacts/*.json
+!artifacts/.gitkeep
